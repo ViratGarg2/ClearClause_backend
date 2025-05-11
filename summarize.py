@@ -13,7 +13,7 @@ if not api_key:
 
 client = OpenAI(
     api_key=api_key,
-    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+    base_url=os.getenv("LLM_URL")
 )
 
 def summarize_text(text):
