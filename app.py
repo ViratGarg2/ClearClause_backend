@@ -6,6 +6,8 @@ from extract_risks import extract_risks
 import google.generativeai as genai
 import os
 from dotenv import load_dotenv
+
+# Load environment variables at the very beginning
 load_dotenv()
 
 app = Flask(__name__)
@@ -119,6 +121,6 @@ def extract():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    # Get port from environment variable for Render
     port = int(os.environ.get("PORT", 5000))
+    print(f"Starting server on port {port}")
     app.run(host='0.0.0.0', port=port)
