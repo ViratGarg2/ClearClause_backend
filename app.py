@@ -3,7 +3,7 @@ from flask_cors import CORS
 from pdf_to_text import pdf_to_text
 from summarize import summarize_text
 from extract_risks import extract_risks
-from openai import OpenAI
+import google.generativeai as genai
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -20,14 +20,13 @@ CORS(app, resources={
     }
 })
 
-api_key = os.getenv("OPENAI_API_KEY")
+api_key = os.getenv("OPENAI_API_KEY")  # Using the same env var name for now
 if not api_key:
-    raise ValueError("OPENAI_API_KEY environment variable is not set. Please set it in your .env file or environment variables.")
+    raise ValueError("API key environment variable is not set. Please set it in your .env file or environment variables.")
 
-client = OpenAI(
-    api_key= api_key,
-    base_url= os.getenv("LLM_URL")
-)
+# Configure Gemini
+genai.configure(api_key=api_key)
+model = genai.GenerativeModel('models/gemini-2.0-flash')
 
 @app.route('/api/analyze', methods=['POST'])
 def analyze_text():
@@ -92,15 +91,8 @@ Question: {question}
 
 Answer:"""
 
-        response = client.chat.completions.create(
-            model="gemini-2.0-flash",
-            messages=[
-                {"role": "system", "content": "You are a legal expert assistant."},
-                {"role": "user", "content": prompt}
-            ]
-        )
-        
-        answer = response.choices[0].message.content
+        response = model.generate_content(prompt)
+        answer = response.text
         return jsonify({"answer": answer})
 
     except Exception as e:

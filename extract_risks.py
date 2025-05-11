@@ -1,5 +1,4 @@
-import openai
-from openai import OpenAI
+import google.generativeai as genai
 import os
 from dotenv import load_dotenv
 
@@ -7,26 +6,25 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get API key from environment variable
-api_key = os.getenv("OPENAI_API_KEY")
+api_key = os.getenv("OPENAI_API_KEY")  # Using the same env var name for now
 if not api_key:
-    raise ValueError("OPENAI_API_KEY environment variable is not set. Please set it in your .env file or environment variables.")
+    raise ValueError("API key environment variable is not set. Please set it in your .env file or environment variables.")
 
-
-client = OpenAI(
-    api_key= api_key,
-    base_url=os.getenv("LLM_URL")
-)
+# Configure Gemini
+genai.configure(api_key=api_key)
+model = genai.GenerativeModel('models/gemini-2.0-flash')
 
 def extract_risks(text):
     try:
-        response = client.chat.completions.create(
-            model="gemini-2.0-flash",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": f"Extract risks from the following text: {text}"}
-            ]
-        )
-        risks_text = response.choices[0].message.content
+        prompt = f"""Extract risks from the following text. For each risk:
+        1. Identify the risky term or clause
+        2. Explain why it's risky
+        Format each risk as 'Term: Explanation'
+        
+        Text: {text}"""
+        
+        response = model.generate_content(prompt)
+        risks_text = response.text
         # Split risks by newline and return as an array
         risks_array = [risk.strip() for risk in risks_text.split('\n') if risk.strip()]
         return risks_array
