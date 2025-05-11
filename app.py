@@ -30,6 +30,11 @@ if not api_key:
 genai.configure(api_key=api_key)
 model = genai.GenerativeModel('models/gemini-2.0-flash')
 
+@app.route('/', methods=['GET', 'HEAD'])
+def home():
+    return jsonify({"status": "ok", "message": "API is running"})
+
+
 @app.route('/api/analyze', methods=['POST'])
 def analyze_text():
     print("analyzing text")
@@ -121,6 +126,6 @@ def extract():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 10000))
     print(f"Starting server on port {port}")
     app.run(host='0.0.0.0', port=port)
