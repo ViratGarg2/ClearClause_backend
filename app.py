@@ -20,11 +20,11 @@ CORS(app, resources={
     }
 })
 
-api_key = os.getenv("OPENAI_API_KEY")  # Using the same env var name for now
-if not api_key:
-    raise ValueError("API key environment variable is not set. Please set it in your .env file or environment variables.")
-
 # Configure Gemini
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    raise ValueError("API key environment variable is not set")
+
 genai.configure(api_key=api_key)
 model = genai.GenerativeModel('models/gemini-2.0-flash')
 
@@ -120,6 +120,5 @@ def extract():
 
 if __name__ == '__main__':
     # Get port from environment variable for Render
-    port = int(os.environ.get("PORT", 5000))
-    debug = os.environ.get("DEBUG", "False").lower() == "true"
-    app.run(host='0.0.0.0', port=port, debug=debug)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
